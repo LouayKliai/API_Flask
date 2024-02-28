@@ -1,27 +1,28 @@
-# services/topic_service.py
-from Models.topic_model import Topic  # Assuming you have the Topic model
-from db import topics_collection  # Assuming you have the topics_collection
+from Models.topic_model import Topic
+from db import topic_collection 
 
 class TopicService:
-    @staticmethod
-    def topic_exists_by_name(name):
-        return topics_collection.find_one({'name': name}) is not None
+    def create_topic(self, name, description, lessons=None):
+        topic = Topic(name, description, lessons)
+        result = topic_collection.insert_one(topic.__dict__)
+        return result.inserted_id
 
-    @staticmethod
-    def create_topic(name, description, lessons=[]):
-        if not name:
-            raise ValueError('Topic name is required for creating a topic.')
+    def get_topic(self, topic_id):
+        topic = topic_collection.find_one({"_id": topic_id})
+        return topic
 
-        if TopicService.topic_exists_by_name(name):
-            raise ValueError('A topic with this name already exists.')
+    def update_topic(self, topic_id, name=None, description=None, lessons=None):
+        update_data = {}
+        if name is not None:
+            update_data["name"] = name
+        if description is not None:
+            update_data["description"] = description
+        if lessons is not None:
+            update_data["lessons"] = lessons
+        
+        result = topic_collection.update_one({"_id": topic_id}, {"$set": update_data})
+        return result.modified_count
 
-        new_topic = Topic(name, description, lessons)
-        topics_collection.insert_one(new_topic.__dict__)
-        return new_topic
-
-    @staticmethod
-    def get_topics():
-        # Add your logic to retrieve topics from the database
-        # For example, you may use an ORM like SQLAlchemy or MongoDB driver
-        topics = []  # Replace with actual retrieval logic
-        return topics
+    def delete_topic(self, topic_id):
+        result = topic_collection.delete_one({"_id": topic_id})
+        return result.deleted_count

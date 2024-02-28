@@ -1,27 +1,29 @@
-# services/question_service.py
-from Models.question_model import Question  # Assuming you have the Question model
-from db import question_collection  # Assuming you have the question_collection
+from Models.question_model import question
+from db import question_collection 
+class questionService:
+    def create_question(self, number, question_id, question_text, options, correction_option):
+        Question = question(number, question_id, question_text, options, correction_option)
+        result = question_collection.insert_one(Question.__dict__)
+        return result.inserted_id
 
-class QuestionService:
-    @staticmethod
-    def question_exists_by_id(question_id):
-        return question_collection.find_one({'question_id': question_id}) is not None
+    def get_question(self, question_id):
+        question = question_collection.find_one({"question_id": question_id})
+        return question
 
-    @staticmethod
-    def create_question(number, question_id, question_text, options, correction_option):
-        if not question_id:
-            raise ValueError('Question ID is required for creating a question.')
+    def update_question(self, question_id, number=None, question_text=None, options=None, correction_option=None):
+        update_data = {}
+        if number is not None:
+            update_data["number"] = number
+        if question_text is not None:
+            update_data["question_text"] = question_text
+        if options is not None:
+            update_data["options"] = options
+        if correction_option is not None:
+            update_data["correction_option"] = correction_option
+        
+        result = question_collection.update_one({"question_id": question_id}, {"$set": update_data})
+        return result.modified_count
 
-        if QuestionService.question_exists_by_id(question_id):
-            raise ValueError('A question with this ID already exists.')
-
-        new_question = Question(number, question_id, question_text, options, correction_option)
-        question_collection.insert_one(new_question.__dict__)
-        return new_question
-
-    @staticmethod
-    def get_questions():
-        # Add your logic to retrieve questions from the database
-        # For example, you may use an ORM like SQLAlchemy or MongoDB driver
-        questions = []  # Replace with actual retrieval logic
-        return questions
+    def delete_question(self, question_id):
+        result = question_collection.delete_one({"question_id": question_id})
+        return result.deleted_count

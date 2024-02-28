@@ -1,23 +1,36 @@
 from flask import Blueprint, jsonify, request
-from Services.topic_services import TopicService  # Assuming you have a service for Topic
+from Services.topic_services import TopicService 
 
 topic_bp = Blueprint('topic_bp', __name__)
+topic_service = TopicService()
 
-@topic_bp.route('/api/topics', methods=['POST'])
-def add_topic_route():
-    topic_data = request.json
-    name = topic_data.get('name')
-    description = topic_data.get('description')
-    lessons = topic_data.get('lessons', [])  # Default to an empty list if not provided
+@topic_bp.route('/topic', methods=['POST'])
+def create_topic():
+    data = request.json
+    topic_id = topic_service.create_topic(data.get('name'), data.get('description'), data.get('lessons'))
+    return jsonify({"topic_id": str(topic_id)}), 201
 
-    try:
-        new_topic = TopicService.create_topic(name, description, lessons)
-        return jsonify({'message': 'Topic added successfully', 'topic': new_topic.__dict__}), 201
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+@topic_bp.route('/topic/<topic_id>', methods=['GET'])
+def get_topic(topic_id):
+    topic = topic_service.get_topic(topic_id)
+    if topic:
+        return jsonify(topic), 200
+    else:
+        return jsonify({"message": "Topic not found"}), 404
 
-@topic_bp.route('/api/topics', methods=['GET'])
-def get_topics_route():
-    # Implement logic to retrieve topics from the database
-    topics = TopicService.get_topics()  # Replace with actual retrieval logic
-    return jsonify({'topics': topics})
+@topic_bp.route('/topic/<topic_id>', methods=['PUT'])
+def update_topic(topic_id):
+    data = request.json
+    updated_count = topic_service.update_topic(topic_id, data.get('name'), data.get('description'), data.get('lessons'))
+    if updated_count > 0:
+        return jsonify({"message": "Topic updated successfully"}), 200
+    else:
+        return jsonify({"message": "Topic not found"}), 404
+
+@topic_bp.route('/topic/<topic_id>', methods=['DELETE'])
+def delete_topic(topic_id):
+    deleted_count = topic_service.delete_topic(topic_id)
+    if deleted_count > 0:
+        return jsonify({"message": "Topic deleted successfully"}), 200
+    else:
+        return jsonify({"message": "Topic not found"}), 404

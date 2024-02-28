@@ -1,22 +1,36 @@
 from flask import Blueprint, jsonify, request
-from Services.resource_services import ResourceService  # Assuming you have a service for Resource
+from Services.resource_services import ResourceService 
 
 resource_bp = Blueprint('resource_bp', __name__)
+resource_service = ResourceService()
 
-@resource_bp.route('/api/resources', methods=['POST'])
-def add_resource_route():
-    resource_data = request.json
-    type_name = resource_data.get('type_name')
-    description = resource_data.get('description')
+@resource_bp.route('/resource', methods=['POST'])
+def create_resource():
+    data = request.json
+    resource_id = resource_service.create_resource(data.get('type_name'), data.get('description'))
+    return jsonify({"resource_id": str(resource_id)}), 201
 
-    try:
-        new_resource = ResourceService.create_resource(type_name, description)
-        return jsonify({'message': 'Resource added successfully', 'resource': new_resource.__dict__}), 201
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+@resource_bp.route('/resource/<resource_id>', methods=['GET'])
+def get_resource(resource_id):
+    resource = resource_service.get_resource(resource_id)
+    if resource:
+        return jsonify(resource), 200
+    else:
+        return jsonify({"message": "Resource not found"}), 404
 
-@resource_bp.route('/api/resources', methods=['GET'])
-def get_resources_route():
-    # Implement logic to retrieve resources from the database
-    resources = ResourceService.get_resources()  # Replace with actual retrieval logic
-    return jsonify({'resources': resources})
+@resource_bp.route('/resource/<resource_id>', methods=['PUT'])
+def update_resource(resource_id):
+    data = request.json
+    updated_count = resource_service.update_resource(resource_id, data.get('type_name'), data.get('description'))
+    if updated_count > 0:
+        return jsonify({"message": "Resource updated successfully"}), 200
+    else:
+        return jsonify({"message": "Resource not found"}), 404
+
+@resource_bp.route('/resource/<resource_id>', methods=['DELETE'])
+def delete_resource(resource_id):
+    deleted_count = resource_service.delete_resource(resource_id)
+    if deleted_count > 0:
+        return jsonify({"message": "Resource deleted successfully"}), 200
+    else:
+        return jsonify({"message": "Resource not found"}), 404

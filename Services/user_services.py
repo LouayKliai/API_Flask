@@ -2,27 +2,33 @@ from Models.user_model import User
 from db import user_collection
 
 class UserService:
-    @staticmethod
-    def user_exists_by_email(email):
-        return user_collection.find_one({'email': email}) is not None
+    def create_user(self, firstname, lastname, age, cin, email, password):
+        user = User(firstname, lastname, age, cin, email, password)
+        result = user_collection.insert_one(user.to_dict())
+        return result.inserted_id
 
-    @staticmethod
-    def create_user(firstname, lastname, age, cin, email, password):
-        user_data = {
-            'firstname': firstname,
-            'lastname': lastname,
-            'age': age,
-            'cin': cin,
-            'email': email,
-            'password': password
-        }
-        user_collection.insert_one(user_data)
+    def get_user(self, user_id):
+        user = user_collection.find_one({"_id": user_id})
+        return user
 
-    @staticmethod
-    def login_user(email, password):
-        user = user_collection.find_one({'email': email})
-        if user is None:
-            return None
-        if user['password'] == password:
-            return User(**user)
-        return None
+    def update_user(self, user_id, firstname=None, lastname=None, age=None, cin=None, email=None, password=None):
+        update_data = {}
+        if firstname is not None:
+            update_data["firstname"] = firstname
+        if lastname is not None:
+            update_data["lastname"] = lastname
+        if age is not None:
+            update_data["age"] = age
+        if cin is not None:
+            update_data["cin"] = cin
+        if email is not None:
+            update_data["email"] = email
+        if password is not None:
+            update_data["password"] = password
+        
+        result = user_collection.update_one({"_id": user_id}, {"$set": update_data})
+        return result.modified_count
+
+    def delete_user(self, user_id):
+        result = user_collection.delete_one({"_id": user_id})
+        return result.deleted_count

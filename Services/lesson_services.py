@@ -1,26 +1,38 @@
 from Models.lesson_model import Lesson
-
+from db import lesson_collection 
 class LessonService:
-
-
-    @staticmethod
-    def add_question(lesson, question):
-        lesson.questions.append(question)
-    
-    @staticmethod
-    def add_activity(lesson, activity):
-        lesson.activities.append(activity)
-    
-    @staticmethod
-    def add_resource(lesson, resource):
-        lesson.resources.append(resource)
-
-    @staticmethod
-    def get_lesson_details(lesson):
-        return {
-            "title": lesson.title,
-            "content": lesson.content,
-            "questions": lesson.questions,
-            "activities": lesson.activities,
-            "resources": lesson.resources
+    def create_lesson(self, title, content, resources=None, questions=None, activities=None):
+        lesson_data = {
+            "title": title,
+            "content": content,
+            "resources": resources,
+            "questions": questions,
+            "activities": activities
         }
+        result = lesson_collection.insert_one(lesson_data)
+        return result.inserted_id
+
+
+    def get_lesson(self, lesson_id):
+        lesson = lesson_collection.find_one({"_id": lesson_id})
+        return lesson
+
+    def update_lesson(self, lesson_id, title=None, content=None, resources=None, questions=None, activities=None):
+        update_data = {}
+        if title is not None:
+            update_data["title"] = title
+        if content is not None:
+            update_data["content"] = content
+        if resources is not None:
+            update_data["resources"] = resources
+        if questions is not None:
+            update_data["question"] = questions
+        if activities is not None:
+            update_data["activities"] = activities
+        
+        result = lesson_collection.update_one({"_id": lesson_id}, {"$set": update_data})
+        return result.modified_count
+
+    def delete_lesson(self, lesson_id):
+        result = lesson_collection.delete_one({"_id": lesson_id})
+        return result.deleted_count

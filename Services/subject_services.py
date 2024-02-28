@@ -1,27 +1,28 @@
-# services/subject_service.py
-from Models.subject_model import Subject  # Assuming you have the Subject model
-from db import subjects_collection  # Assuming you have the subjects_collection
+from Models.subject_model import Subject  
+from db import subject_collection  
 
 class SubjectService:
-    @staticmethod
-    def subject_exists_by_name(name):
-        return subjects_collection.find_one({'name': name}) is not None
+    def create_subject(self, name, description, topics=None):
+        subject = Subject(name, description, topics)
+        result = subject_collection.insert_one(subject.__dict__)
+        return result.inserted_id
 
-    @staticmethod
-    def create_subject(name, description, topics=[]):
-        if not name:
-            raise ValueError('Subject name is required for creating a subject.')
+    def get_subject(self, subject_id):
+        subject = subject_collection.find_one({"_id": subject_id})
+        return subject
 
-        if SubjectService.subject_exists_by_name(name):
-            raise ValueError('A subject with this name already exists.')
+    def update_subject(self, subject_id, name=None, description=None, topics=None):
+        update_data = {}
+        if name is not None:
+            update_data["name"] = name
+        if description is not None:
+            update_data["description"] = description
+        if topics is not None:
+            update_data["topics"] = topics
+        
+        result = subject_collection.update_one({"_id": subject_id}, {"$set": update_data})
+        return result.modified_count
 
-        new_subject = Subject(name, description, topics)
-        subjects_collection.insert_one(new_subject.__dict__)
-        return new_subject
-
-    @staticmethod
-    def get_subjects():
-        # Add your logic to retrieve subjects from the database
-        # For example, you may use an ORM like SQLAlchemy or MongoDB driver
-        subjects = []  # Replace with actual retrieval logic
-        return subjects
+    def delete_subject(self, subject_id):
+        result = subject_collection.delete_one({"_id": subject_id})
+        return result.deleted_count

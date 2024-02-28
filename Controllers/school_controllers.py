@@ -1,25 +1,36 @@
 from flask import Blueprint, jsonify, request
-from Services.school_services import SchoolService  # Assuming you have a service for School
+from Services.school_services import SchoolService 
 
 school_bp = Blueprint('school_bp', __name__)
+school_service = SchoolService()
 
-@school_bp.route('/api/schools', methods=['POST'])
-def add_school_route():
-    school_data = request.json
-    name = school_data.get('name')
-    address = school_data.get('address')
-    email = school_data.get('email')
-    phone = school_data.get('phone')
-    curriculum = school_data.get('curriculum', [])  # Default to an empty list if not provided
+@school_bp.route('/school', methods=['POST'])
+def create_school():
+    data = request.json
+    school_id = school_service.create_school(data.get('name'), data.get('address'), data.get('email'), data.get('phone'), data.get('curriculum'))
+    return jsonify({"school_id": str(school_id)}), 201
 
-    try:
-        new_school = SchoolService.create_school(name, address, email, phone, curriculum)
-        return jsonify({'message': 'School added successfully', 'school': new_school.__dict__}), 201
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+@school_bp.route('/school/<school_id>', methods=['GET'])
+def get_school(school_id):
+    school = school_service.get_school(school_id)
+    if school:
+        return jsonify(school), 200
+    else:
+        return jsonify({"message": "School not found"}), 404
 
-@school_bp.route('/api/schools', methods=['GET'])
-def get_schools_route():
-    # Implement logic to retrieve schools from the database
-    schools = SchoolService.get_schools()  # Replace with actual retrieval logic
-    return jsonify({'schools': schools})
+@school_bp.route('/school/<school_id>', methods=['PUT'])
+def update_school(school_id):
+    data = request.json
+    updated_count = school_service.update_school(school_id, data.get('name'), data.get('address'), data.get('email'), data.get('phone'), data.get('curriculum'))
+    if updated_count > 0:
+        return jsonify({"message": "School updated successfully"}), 200
+    else:
+        return jsonify({"message": "School not found"}), 404
+
+@school_bp.route('/school/<school_id>', methods=['DELETE'])
+def delete_school(school_id):
+    deleted_count = school_service.delete_school(school_id)
+    if deleted_count > 0:
+        return jsonify({"message": "School deleted successfully"}), 200
+    else:
+        return jsonify({"message": "School not found"}), 404

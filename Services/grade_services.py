@@ -4,28 +4,19 @@ from Models.curriculum_model import Curriculum
 from db import grade_collection 
 from Services.curriculum_services import CurriculumService
 class GradeService:
-    @staticmethod
-    def grade_exists_by_name(name):
-        return grade_collection.find_one({'name': name}) is not None
+    def create_grade(self, name, curriculum_id):
+        grade = Grade(name, curriculum_id)
+        result = grade_collection.insert_one(grade.__dict__)
+        return result.inserted_id
 
-    @staticmethod
-    def create_grade(name, curriculum_id):
-        if not curriculum_id:
-            raise ValueError('Curriculum ID is required for creating a grade.')
+    def get_grade(self, grade_id):
+        grade = grade_collection.find_one({"_id": grade_id})
+        return grade
 
-        if not CurriculumService.curriculum_exists_by_id(curriculum_id):
-            raise ValueError('Curriculum with the provided ID does not exist.')
+    def update_grade(self, grade_id, name):
+        result = grade_collection.update_one({"_id": grade_id}, {"$set": {"name": name}})
+        return result.modified_count
 
-        if GradeService.grade_exists_by_name(name):
-            raise ValueError('A grade with this name already exists.')
-
-        new_grade = Grade(name, curriculum_id)
-        grade_collection.insert_one(new_grade.__dict__)
-        return new_grade
-
-    @staticmethod
-    def get_grades():
-        # Add your logic to retrieve grades from the database
-        # For example, you may use an ORM like SQLAlchemy or MongoDB driver
-        grades = []  # Replace with actual retrieval logic
-        return grades
+    def delete_grade(self, grade_id):
+        result = grade_collection.delete_one({"_id": grade_id})
+        return result.deleted_count

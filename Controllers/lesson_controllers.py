@@ -2,37 +2,36 @@ from flask import Flask, jsonify, request,Blueprint
 from Models.lesson_model import Lesson
 from Services.lesson_services import LessonService
 
-curriculum_bp = Blueprint('curriculum_bp', __name__)
+lesson_bp = Blueprint('lesson_bp', __name__)
+lesson_service = LessonService()
 
-lesson = Lesson("Title", "Content")
-
-@curriculum_bp.route('/lesson/question', methods=['POST'])
-def add_question():
+@lesson_bp.route('/lesson', methods=['POST'])
+def create_lesson():
     data = request.json
-    question = data.get('question')
-    if not question:
-        return jsonify({'error': 'Question is required'}), 400
-    LessonService.add_question(lesson, question)
-    return jsonify({'message': 'Question added successfully'}), 201
+    lesson_id = lesson_service.create_lesson(data.get('title'), data.get('content'), data.get('resources'), data.get('question'), data.get('activities'))
+    return jsonify({"lesson_id": str(lesson_id)}), 201
 
-@curriculum_bp.route('/lesson/activity', methods=['POST'])
-def add_activity():
+@lesson_bp.route('/lesson/<lesson_id>', methods=['GET'])
+def get_lesson(lesson_id):
+    lesson = lesson_service.get_lesson(lesson_id)
+    if lesson:
+        return jsonify(lesson), 200
+    else:
+        return jsonify({"message": "Lesson not found"}), 404
+
+@lesson_bp.route('/lesson/<lesson_id>', methods=['PUT'])
+def update_lesson(lesson_id):
     data = request.json
-    activity = data.get('activity')
-    if not activity:
-        return jsonify({'error': 'Activity is required'}), 400
-    LessonService.add_activity(lesson, activity)
-    return jsonify({'message': 'Activity added successfully'}), 201
+    updated_count = lesson_service.update_lesson(lesson_id, data.get('title'), data.get('content'), data.get('resources'), data.get('question'), data.get('activities'))
+    if updated_count > 0:
+        return jsonify({"message": "Lesson updated successfully"}), 200
+    else:
+        return jsonify({"message": "Lesson not found"}), 404
 
-@curriculum_bp.route('/lesson/resource', methods=['POST'])
-def add_resource():
-    data = request.json
-    resource = data.get('resource')
-    if not resource:
-        return jsonify({'error': 'Resource is required'}), 400
-    LessonService.add_resource(lesson, resource)
-    return jsonify({'message': 'Resource added successfully'}), 201
-
-@curriculum_bp.route('/lesson/details', methods=['GET'])
-def get_lesson_details():
-    return jsonify(LessonService.get_lesson_details(lesson))
+@lesson_bp.route('/lesson/<lesson_id>', methods=['DELETE'])
+def delete_lesson(lesson_id):
+    deleted_count = lesson_service.delete_lesson(lesson_id)
+    if deleted_count > 0:
+        return jsonify({"message": "Lesson deleted successfully"}), 200
+    else:
+        return jsonify({"message": "Lesson not found"}), 404

@@ -2,21 +2,35 @@ from flask import Blueprint, jsonify, request
 from Services.grade_services import GradeService  # Assuming you have a service for Grade
 
 grade_bp = Blueprint('grade_bp', __name__)
+grade_service = GradeService()
 
-@grade_bp.route('/api/grades', methods=['POST'])
-def add_grade_route():
-    grade_data = request.json
-    name = grade_data.get('name')
-    curriculum_id = grade_data.get('curriculum_id')  # Assuming you pass curriculum_id instead of the full curriculum object
+@grade_bp.route('/grade', methods=['POST'])
+def create_grade():
+    data = request.json
+    grade_id = grade_service.create_grade(data.get('name'), data.get('curriculum'))
+    return jsonify({"grade_id": str(grade_id)}), 201
 
-    try:
-        new_grade = GradeService.create_grade(name, curriculum_id)
-        return jsonify({'message': 'Grade added successfully', 'grade': new_grade.__dict__}), 201
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+@grade_bp.route('/grade/<grade_id>', methods=['GET'])
+def get_grade(grade_id):
+    grade = grade_service.get_grade(grade_id)
+    if grade:
+        return jsonify(grade), 200
+    else:
+        return jsonify({"message": "Grade not found"}), 404
 
-@grade_bp.route('/api/grades', methods=['GET'])
-def get_grades_route():
-    # Implement logic to retrieve grades from the database
-    grades = GradeService.get_grades()  # Replace with actual retrieval logic
-    return jsonify({'grades': grades})
+@grade_bp.route('/grade/<grade_id>', methods=['PUT'])
+def update_grade(grade_id):
+    data = request.json
+    updated_count = grade_service.update_grade(grade_id, data.get('name'))
+    if updated_count > 0:
+        return jsonify({"message": "Grade updated successfully"}), 200
+    else:
+        return jsonify({"message": "Grade not found"}), 404
+
+@grade_bp.route('/grade/<grade_id>', methods=['DELETE'])
+def delete_grade(grade_id):
+    deleted_count = grade_service.delete_grade(grade_id)
+    if deleted_count > 0:
+        return jsonify({"message": "Grade deleted successfully"}), 200
+    else:
+        return jsonify({"message": "Grade not found"}), 404
