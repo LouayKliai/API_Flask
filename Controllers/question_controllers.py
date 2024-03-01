@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
-from Services.question_services import questionService 
-
+from Services.question_services import QuestionService
+#question_collection
 question_bp = Blueprint('question_bp', __name__)
-question_service = questionService()
+question_service = QuestionService()
 
 @question_bp.route('/question', methods=['POST'])
 def create_question():

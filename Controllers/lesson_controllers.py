@@ -8,7 +8,8 @@ lesson_service = LessonService()
 @lesson_bp.route('/lesson', methods=['POST'])
 def create_lesson():
     data = request.json
-    lesson_id = lesson_service.create_lesson(data.get('title'), data.get('content'), data.get('resources'), data.get('question'), data.get('activities'))
+    #lesson_id = lesson_service.create_lesson(data.get('title'), data.get('content'), data.get('resources'), data.get('question'), data.get('activities'))
+    lesson_id = lesson_service.create_lesson(data.get('title'), data.get('content'))
     return jsonify({"lesson_id": str(lesson_id)}), 201
 
 @lesson_bp.route('/lesson/<lesson_id>', methods=['GET'])

@@ -1,8 +1,8 @@
 from flask import Flask
-class School:
-    def __init__(self, name, address, email, phone,curriculum=[]):
-        self.name = name
-        self.address = address
-        self.email = email
-        self.phone = phone
-        self.curriculum=curriculum
+from mongoengine import Document,StringField
+class School(Document):
+    name = StringField(required=True)
+    address = StringField(required=True)
+    email = StringField(required=True)
+    phone = StringField(required=True)
+    curriculum = StringField()

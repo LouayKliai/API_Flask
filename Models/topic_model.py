@@ -1,6 +1,7 @@
-from flask import Flask
-class Topic:
-    def __init__(self, name,description, lessons=[]):
-        self.name = name
-        self.description = description
-        self.lessons = lessons
+from mongoengine import Document, StringField, ListField, ReferenceField
+from Models.lesson_model import Lesson
+
+class Topic(Document):
+    name = StringField(required=True)
+    description = StringField(required=True)
+    lessons = ListField(ReferenceField(Lesson))

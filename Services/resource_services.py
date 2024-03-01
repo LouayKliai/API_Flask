@@ -1,26 +1,25 @@
-from Models.resource_model import Resource  
-from db import ressource_collection  
+from Models.resource_model import Resource
 
 class ResourceService:
     def create_resource(self, type_name, description):
-        resource = Resource(type_name, description)
-        result = ressource_collection.insert_one(resource.__dict__)
-        return result.inserted_id
+        resource = Resource(type_name=type_name, description=description)
+        resource.save()
+        return str(resource.id)
 
     def get_resource(self, resource_id):
-        resource = ressource_collection.find_one({"_id": resource_id})
-        return resource
+        resource = Resource.objects(id=resource_id).first()
+        return resource.to_json() if resource else None
 
-    def update_resource(self, resource_id, type_name=None, description=None):
-        update_data = {}
-        if type_name is not None:
-            update_data["type_name"] = type_name
-        if description is not None:
-            update_data["description"] = description
-        
-        result = ressource_collection.update_one({"_id": resource_id}, {"$set": update_data})
-        return result.modified_count
+    def update_resource(self, resource_id, data):
+        resource = Resource.objects(id=resource_id).first()
+        if resource:
+            resource.modify(**data)
+            return True
+        return False
 
     def delete_resource(self, resource_id):
-        result = ressource_collection.delete_one({"_id": resource_id})
-        return result.deleted_count
+        resource = Resource.objects(id=resource_id).first()
+        if resource:
+            resource.delete()
+            return True
+        return False

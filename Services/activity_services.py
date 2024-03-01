@@ -1,20 +1,25 @@
 from Models.activity_model import Activity
-from db import activity_collection  
 
 class ActivityService:
-    def create_activity(self, activity_data):
-        activity = Activity(**activity_data)
-        result = activity_collection.insert_one(activity.__dict__)
-        return result.inserted_id
+    def create_activity(self, name, lesson_id, activity_type, activity_details=None):
+        activity = Activity(name=name, lesson_id=lesson_id, activity_type=activity_type, activity_details=activity_details)
+        activity.save()
+        return str(activity.id)
 
     def get_activity(self, activity_id):
-        activity = activity_collection.find_one({"_id": activity_id})
-        return activity
+        activity = Activity.objects(id=activity_id).first()
+        return activity.to_json() if activity else None
 
-    def update_activity(self, activity_id, activity_data):
-        result = activity_collection.update_one({"_id": activity_id}, {"$set": activity_data})
-        return result.modified_count
+    def update_activity(self, activity_id, data):
+        activity = Activity.objects(id=activity_id).first()
+        if activity:
+            activity.modify(**data)
+            return True
+        return False
 
     def delete_activity(self, activity_id):
-        result = activity_collection.delete_one({"_id": activity_id})
-        return result.deleted_count
+        activity = Activity.objects(id=activity_id).first()
+        if activity:
+            activity.delete()
+            return True
+        return False

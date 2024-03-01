@@ -1,6 +1,6 @@
 from flask import Flask
+from mongoengine import Document, StringField
 
-class Resource:
-    def __init__(self, type_name,description):
-        self.type_name = type_name
-        self.description=description
+class Resource(Document):
+    type_name = StringField(required=True)
+    description = StringField(required=True)

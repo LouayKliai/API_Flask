@@ -9,9 +9,9 @@ from Controllers.question_controllers import question_bp
 from Controllers.resource_controllers import resource_bp
 from Controllers.subject_controllers import subject_bp
 from Controllers.topic_controllers import topic_bp
-
+from db import initialize_db
 app = Flask(__name__)
-
+initialize_db()
 app.register_blueprint(curriculum_bp)
 app.register_blueprint(activity_bp)
 app.register_blueprint(grade_bp)

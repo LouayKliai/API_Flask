@@ -1,28 +1,25 @@
-from Models.subject_model import Subject  
-from db import subject_collection  
+from Models.subject_model import Subject
 
 class SubjectService:
-    def create_subject(self, name, description, topics=None):
-        subject = Subject(name, description, topics)
-        result = subject_collection.insert_one(subject.__dict__)
-        return result.inserted_id
+    def create_subject(self, name, description):
+        subject = Subject(name=name, description=description)
+        subject.save()
+        return str(subject.id)
 
     def get_subject(self, subject_id):
-        subject = subject_collection.find_one({"_id": subject_id})
-        return subject
+        subject = Subject.objects(id=subject_id).first()
+        return subject.to_json() if subject else None
 
-    def update_subject(self, subject_id, name=None, description=None, topics=None):
-        update_data = {}
-        if name is not None:
-            update_data["name"] = name
-        if description is not None:
-            update_data["description"] = description
-        if topics is not None:
-            update_data["topics"] = topics
-        
-        result = subject_collection.update_one({"_id": subject_id}, {"$set": update_data})
-        return result.modified_count
+    def update_subject(self, subject_id, data):
+        subject = Subject.objects(id=subject_id).first()
+        if subject:
+            subject.modify(**data)
+            return True
+        return False
 
     def delete_subject(self, subject_id):
-        result = subject_collection.delete_one({"_id": subject_id})
-        return result.deleted_count
+        subject = Subject.objects(id=subject_id).first()
+        if subject:
+            subject.delete()
+            return True
+        return False
