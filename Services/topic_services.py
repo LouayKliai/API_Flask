@@ -1,8 +1,8 @@
 from Models.topic_model import Topic
 
 class TopicService:
-    def create_topic(self, name, description):
-        topic = Topic(name=name, description=description)
+    def create_topic(self, name, description,lessons):
+        topic = Topic(name=name, description=description,lessons=lessons)
         topic.save()
         return str(topic.id)
 

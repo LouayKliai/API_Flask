@@ -1,40 +1,57 @@
-from Models.curriculum_model import Curriculum 
-from db import curriculum_collection  
-
+from Models.curriculum_model import Curriculum
 
 class CurriculumService:
     def create_curriculum(self, name):
-        curriculum = Curriculum(name)
-        result = curriculum_collection.insert_one(curriculum.__dict__)
-        return result.inserted_id
+        curriculum = Curriculum(name=name)  
+        curriculum.save()  
+        return curriculum.id
 
     def get_curriculum(self, curriculum_id):
-        curriculum = curriculum_collection.find_one({"_id": curriculum_id})
-        return curriculum
+        curriculum = Curriculum.objects(id=curriculum_id).first()  
+        return curriculum  
 
     def update_curriculum(self, curriculum_id, curriculum_data):
-        result = curriculum_collection.update_one({"_id": curriculum_id}, {"$set": curriculum_data})
-        return result.modified_count
-
-    def delete_curriculum(self, curriculum_id):
-        result = curriculum_collection.delete_one({"_id": curriculum_id})
-        return result.deleted_count
-
-    def add_grade_to_curriculum(self, curriculum_id, grade):
-        curriculum = curriculum_collection.find_one({"_id": curriculum_id})
+        curriculum = Curriculum.objects(id=curriculum_id).first()  
         if curriculum:
-            curriculum['grades'].append(grade)
-            curriculum_collection.update_one({"_id": curriculum_id}, {"$set": curriculum})
+            curriculum.modify(**curriculum_data)  
             return True
         return False
+
+    def delete_curriculum(self, curriculum_id):
+        curriculum = Curriculum.objects(id=curriculum_id).first()  
+        if curriculum:
+            curriculum.delete()  
+            return True
+        return False
+
+    def add_grade_to_curriculum(self, curriculum_id, grade):
+        curriculum = Curriculum.objects(id=curriculum_id).first()  
+        if curriculum:
+            curriculum.grades.append(grade)  
+            curriculum.save()  
+            return True
+        return False
+
     def remove_grade_from_curriculum(self, curriculum_id, grade_id):
-        result = curriculum_collection.update_one({"_id": curriculum_id}, {"$pull": {"grades": grade_id}})
-        return result.modified_count
+        curriculum = Curriculum.objects(id=curriculum_id).first()  
+        if curriculum:
+            curriculum.grades.remove(grade_id)  
+            curriculum.save()  
+            return True
+        return False
 
     def add_subject_to_curriculum(self, curriculum_id, subject):
-        curriculum = curriculum_collection.find_one({"_id": curriculum_id})
+        curriculum = Curriculum.objects(id=curriculum_id).first()  
         if curriculum:
-            curriculum['subjects'].append(subject)
-            curriculum_collection.update_one({"_id": curriculum_id}, {"$set": curriculum})
+            curriculum.subjects.append(subject)  
+            curriculum.save()  
             return True
+        return False
+    def remove_subject_from_curriculum(self, curriculum_id, subject_id):
+        curriculum = Curriculum.objects(id=curriculum_id).first() 
+        if curriculum:
+            if subject_id in curriculum.subjects:
+                curriculum.subjects.remove(subject_id)  
+                curriculum.save()  
+                return True
         return False

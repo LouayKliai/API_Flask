@@ -1,8 +1,8 @@
 from Models.subject_model import Subject
 
 class SubjectService:
-    def create_subject(self, name, description):
-        subject = Subject(name=name, description=description)
+    def create_subject(self, name, description,topics):
+        subject = Subject(name=name, description=description,topics=topics)
         subject.save()
         return str(subject.id)
 

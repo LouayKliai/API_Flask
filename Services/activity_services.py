@@ -1,8 +1,8 @@
 from Models.activity_model import Activity
 
 class ActivityService:
-    def create_activity(self, name, lesson_id, activity_type, activity_details=None):
-        activity = Activity(name=name, lesson_id=lesson_id, activity_type=activity_type, activity_details=activity_details)
+    def create_activity(self, name, lesson_id, activity_details=None):
+        activity = Activity(name=name, lesson_id=lesson_id, activity_details=activity_details)        
         activity.save()
         return str(activity.id)
 

@@ -6,10 +6,10 @@ activity_service = ActivityService()
 
 @activity_bp.route('/activity', methods=['POST'])
 def create_activity():
-    activity_data = request.json
-    activity_id = activity_service.create_activity(activity_data)
-    return jsonify({"activity_id": str(activity_id)}), 201
-
+    data = request.get_json()
+    lesson_id = data.get('lesson_id')   
+    activity_id = activity_service.create_activity(lesson_id, data)
+    return jsonify({'activity_id': str(activity_id)}), 201
 @activity_bp.route('/activity/<activity_id>', methods=['GET'])
 def get_activity(activity_id):
     activity = activity_service.get_activity(activity_id)
