@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from Services.curriculum_services import CurriculumService  
+from decrators import login_required
 
 curriculum_bp = Blueprint('curriculum_bp', __name__)
 curriculum_service = CurriculumService()
@@ -7,16 +8,14 @@ curriculum_service = CurriculumService()
 
 
 @curriculum_bp.route('/curriculum', methods=['POST'])
+#@login_required
 def create_curriculum():
-    data = request.get_json()
-    name = data.get('name')
-    if name:
-        curriculum_id = curriculum_service.create_curriculum(name)
-        return jsonify({'curriculum_id': str(curriculum_id)}), 201
-    else:
-        return jsonify({'error': 'Missing name parameter'}), 400
-
+    data = request.get_json()    
+    curriculum_id = curriculum_service.create_curriculum(data.get('name'), data.get('grades'), data.get('subjects'))
+    return jsonify({"curriculum_id": str(curriculum_id)}), 201
+    
 @curriculum_bp.route('/curriculum/<curriculum_id>', methods=['GET'])
+#@login_required
 def get_curriculum(curriculum_id):
     curriculum = curriculum_service.get_curriculum(curriculum_id)
     if curriculum:
@@ -25,6 +24,7 @@ def get_curriculum(curriculum_id):
         return jsonify({'error': 'Curriculum not found'}), 404
 
 @curriculum_bp.route('/curriculum/<curriculum_id>', methods=['PUT'])
+#@login_required
 def update_curriculum(curriculum_id):
     data = request.get_json()
     success = curriculum_service.update_curriculum(curriculum_id, data)
@@ -34,6 +34,7 @@ def update_curriculum(curriculum_id):
         return jsonify({'error': 'Curriculum not found'}), 404
 
 @curriculum_bp.route('/curriculum/<curriculum_id>', methods=['DELETE'])
+#@login_required
 def delete_curriculum(curriculum_id):
     success = curriculum_service.delete_curriculum(curriculum_id)
     if success:

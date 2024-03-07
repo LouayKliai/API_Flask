@@ -6,6 +6,6 @@ from Models.question_model import  Question
 class Lesson(Document):
     title = StringField(required=True)
     content = StringField(required=True)
-    resources = ListField(ReferenceField(Resource))
-    question = ListField(ReferenceField(Question))
-    activities = ListField(ReferenceField(Activity))
+    resources_list = ListField(ReferenceField(Resource))
+    question_list = ListField(ReferenceField(Question))
+    activities_list = ListField(ReferenceField(Activity))

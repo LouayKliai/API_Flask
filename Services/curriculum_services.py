@@ -1,10 +1,10 @@
 from Models.curriculum_model import Curriculum
 
 class CurriculumService:
-    def create_curriculum(self, name):
-        curriculum = Curriculum(name=name)  
+    def create_curriculum(self, name,grades,subjects):
+        curriculum = Curriculum(name=name,grades=grades,subjects=subjects)  
         curriculum.save()  
-        return curriculum.id
+        return str(curriculum.id)
 
     def get_curriculum(self, curriculum_id):
         curriculum = Curriculum.objects(id=curriculum_id).first()  

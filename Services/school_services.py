@@ -1,8 +1,7 @@
 from Models.school_model import School
-
 class SchoolService:
-    def create_school(self, name, address, email, phone, curriculum=None):
-        school = School(name=name, address=address, email=email, phone=phone, curriculum=curriculum)
+    def create_school(self, name, address, email, phone, curriculum,user):
+        school = School(name=name, address=address, email=email, phone=phone, curriculum=curriculum,user=user)
         school.save()
         return str(school.id)
 

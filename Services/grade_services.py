@@ -1,8 +1,8 @@
 from Models.grade_model import Grade
 
 class GradeService:
-    def create_grade(self, name, curriculum):
-        grade = Grade(name=name, curriculum=curriculum)
+    def create_grade(self, name, curriculum,document):
+        grade = Grade(name=name, curriculum=curriculum,document=document)
         grade.save()
         return str(grade.id)
 
