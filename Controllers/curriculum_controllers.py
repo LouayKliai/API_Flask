@@ -11,9 +11,25 @@ curriculum_service = CurriculumService()
 #@login_required
 def create_curriculum():
     data = request.get_json()    
-    curriculum_id = curriculum_service.create_curriculum(data.get('name'), data.get('grades'), data.get('subjects'))
+    curriculum_id = curriculum_service.create_curriculum(data.get('name'), data.get('grades'), data.get('subjects'),data.get('owners'))
     return jsonify({"curriculum_id": str(curriculum_id)}), 201
-    
+
+
+
+@curriculum_bp.route('/curriculum', methods=['GET'])
+#@login_required
+def get_all_curriculum():
+    all_curriculum = curriculum_service.get_all_curriculum()
+    if all_curriculum:
+        curriculum_list = [curriculum.to_dict() for curriculum in all_curriculum]
+        return jsonify(curriculum_list), 200
+    else:
+        return jsonify({'error': 'No curriculum found'}), 404
+
+
+
+
+
 @curriculum_bp.route('/curriculum/<curriculum_id>', methods=['GET'])
 #@login_required
 def get_curriculum(curriculum_id):
@@ -32,6 +48,10 @@ def update_curriculum(curriculum_id):
         return jsonify({'message': 'Curriculum updated successfully'}), 200
     else:
         return jsonify({'error': 'Curriculum not found'}), 404
+    
+
+
+
 
 @curriculum_bp.route('/curriculum/<curriculum_id>', methods=['DELETE'])
 #@login_required
@@ -41,3 +61,4 @@ def delete_curriculum(curriculum_id):
         return jsonify({'message': 'Curriculum deleted successfully'}), 200
     else:
         return jsonify({'error': 'Curriculum not found'}), 404
+    
